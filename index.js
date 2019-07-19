@@ -74,7 +74,7 @@ server.get('/movie', (req, res) => {
   res.json(filteredMovies);
 });
 
-app.use((error, req, res, next) => {
+server.use((error, req, res, next) => {
   let response
   if (process.env.NODE_ENV === 'production') {
     response = { error: { message: 'server error' }}
