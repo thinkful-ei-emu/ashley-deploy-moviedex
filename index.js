@@ -4,7 +4,8 @@ const morgan = require('morgan');
 const helmet = require('helmet');
 const cors = require('cors');
 const movies = require('./movies');
-server.use(morgan('dev'));
+const morganSetting = process.env.NODE_ENV === 'production' ? 'tiny' : 'common';
+server.use(morgan(morganSetting))
 server.use(helmet());
 server.use(cors());
 require('dotenv').config();
@@ -66,16 +67,22 @@ server.get('/movie', (req, res) => {
   }
 
   if (avg_vote) {
-    let convertedVote = Number(avg_vote);
-    console.log(avg_vote);
+    let convertedVote = Number(avg_vote);    
     filteredMovies = filteredMovies.filter(movie => Number(movie['avg_vote']) >= convertedVote);
   }
-
-
-
-
 
   res.json(filteredMovies);
 });
 
-server.listen(8080, () => console.log('Server on 8080 is running'));
+app.use((error, req, res, next) => {
+  let response
+  if (process.env.NODE_ENV === 'production') {
+    response = { error: { message: 'server error' }}
+  } else {
+    response = { error }
+  }
+  res.status(500).json(response)
+})
+
+const PORT = process.env.PORT || 8000
+server.listen(PORT, () => console.log(`Server listening at http://localhost:${PORT}`));
